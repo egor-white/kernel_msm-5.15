@@ -79,6 +79,10 @@ static int bcl_set_soc(void *data, int low, int high)
 	if (high == bcl_perph->trip_temp)
 		return 0;
 
+	// Clamp battery trip_temp to max 45°C (45000)
+	if (high > 45000)
+		high = 45000;
+
 	mutex_lock(&bcl_perph->state_trans_lock);
 	pr_debug("socd threshold:%d\n", high);
 	bcl_perph->trip_temp = high;
