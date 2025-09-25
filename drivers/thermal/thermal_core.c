@@ -1251,8 +1251,9 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	tz->devdata = devdata;
 	tz->trips = trips;
 
-	thermal_set_delay_jiffies(&tz->passive_delay_jiffies, passive_delay);
-	thermal_set_delay_jiffies(&tz->polling_delay_jiffies, polling_delay);
+	// Increase delays to slow down thermal reaction
+	thermal_set_delay_jiffies(&tz->passive_delay_jiffies, passive_delay * 4);
+	thermal_set_delay_jiffies(&tz->polling_delay_jiffies, polling_delay * 4);
 
 	/* sys I/F */
 	/* Add nodes that are always present via .groups */

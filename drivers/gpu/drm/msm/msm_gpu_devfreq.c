@@ -87,8 +87,8 @@ static int msm_devfreq_get_cur_freq(struct device *dev, unsigned long *freq)
 
 static struct devfreq_dev_profile msm_devfreq_profile = {
 	.timer = DEVFREQ_TIMER_DELAYED,
-	// Increase polling interval to make scaling less aggressive
-	.polling_ms = 200,
+	// Make GPU devfreq even less aggressive
+	.polling_ms = 800, // quadruple polling interval
 	.target = msm_devfreq_target,
 	.get_dev_status = msm_devfreq_get_dev_status,
 	.get_cur_freq = msm_devfreq_get_cur_freq,
@@ -108,10 +108,13 @@ void msm_devfreq_init(struct msm_gpu *gpu)
 	if (IS_ERR(opp))
 		return PTR_ERR(opp);
 
-	// Only allow frequency to drop by max 1 step per poll
+	// Only allow frequency to drop by max 1 step per poll, and never below 50% of max
 	if (*freq < old_freq) {
-		if (old_freq - *freq > old_freq / 4) // max 25% drop per poll
-			*freq = old_freq - old_freq / 4;
+		unsigned long min_freq = old_freq / 2;
+		if (*freq < min_freq)
+			*freq = min_freq;
+		if (old_freq - *freq > old_freq / 8) // max 12.5% drop per poll
+			*freq = old_freq - old_freq / 8;
 	}
 
 	trace_msm_gpu_freq_change(dev_pm_opp_get_freq(opp));

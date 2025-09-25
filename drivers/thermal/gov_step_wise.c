@@ -63,18 +63,23 @@ static unsigned long get_target_state(struct thermal_instance *instance,
 		return next_target;
 	}
 
+	// Limit maximum cooling state to make throttling less aggressive
+	unsigned long max_cooling_state = instance->upper;
+	if (max_cooling_state > 2)
+		max_cooling_state = 2; // never throttle below state 2
+
 	switch (trend) {
 	case THERMAL_TREND_RAISING:
 		if (throttle) {
-			next_target = cur_state < instance->upper ?
-				    (cur_state + 1) : instance->upper;
+			next_target = cur_state < max_cooling_state ?
+					(cur_state + 1) : max_cooling_state;
 			if (next_target < instance->lower)
 				next_target = instance->lower;
 		}
 		break;
 	case THERMAL_TREND_RAISE_FULL:
 		if (throttle)
-			next_target = instance->upper;
+			next_target = max_cooling_state;
 		break;
 	case THERMAL_TREND_DROPPING:
 		if (cur_state <= instance->lower) {
@@ -83,8 +88,8 @@ static unsigned long get_target_state(struct thermal_instance *instance,
 		} else {
 			if (!throttle) {
 				next_target = cur_state - 1;
-				if (next_target > instance->upper)
-					next_target = instance->upper;
+				if (next_target > max_cooling_state)
+					next_target = max_cooling_state;
 			}
 		}
 		break;

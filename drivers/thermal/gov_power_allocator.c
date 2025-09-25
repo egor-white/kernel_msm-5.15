@@ -141,21 +141,22 @@ static void estimate_pid_constants(struct thermal_zone_device *tz,
 	if (ret)
 		switch_on_temp = 0;
 
-	// Make PID less aggressive: increase threshold, reduce gain
-	temperature_threshold = (control_temp - switch_on_temp) * 2; // double threshold
+	// Make PID much less aggressive: greatly increase threshold, reduce gain
+	temperature_threshold = (control_temp - switch_on_temp) * 4; // quadruple threshold
 	if (!temperature_threshold)
-		temperature_threshold = 10000; // fallback to high value
+		temperature_threshold = 50000; // fallback to very high value
 
-	tz->tzp->k_po = int_to_frac(sustainable_power) / (temperature_threshold * 2); // reduce proportional gain
-	tz->tzp->k_pu = int_to_frac(sustainable_power) / temperature_threshold;
+	tz->tzp->k_po = int_to_frac(sustainable_power) / (temperature_threshold * 4); // much lower proportional gain
+	tz->tzp->k_pu = int_to_frac(sustainable_power) / (temperature_threshold * 2);
 
-	k_i = tz->tzp->k_pu / 20; // reduce integral gain
+	k_i = tz->tzp->k_pu / 40; // much lower integral gain
 	tz->tzp->k_i = k_i > 0 ? k_i : 1;
 
 	// Derivative gain even lower
-	tz->tzp->k_d = 1;
+	tz->tzp->k_d = 0;
 
-	// The default for integral_cutoff is 0, so we can leave it as is.
+	// Increase integral_cutoff to slow reaction
+	tz->tzp->integral_cutoff = 10000;
 }
 
 /**
