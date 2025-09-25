@@ -592,8 +592,9 @@ static int tsens_set_trips(void *_sensor, int low, int high)
 	dev_dbg(dev, "[%u] %s: proposed thresholds: (%d:%d)\n",
 		hw_id, __func__, low, high);
 
-	cl_high = clamp_val(high, -40000, 120000);
-	cl_low  = clamp_val(low, -40000, 120000);
+	// Clamp trip points to a higher max (e.g., 90°C)
+	cl_high = clamp_val(high, -40000, 90000); // allow up to 90°C
+	cl_low  = clamp_val(low, -40000, 90000);
 
 	high_val = tsens_mC_to_hw(s, cl_high);
 	low_val  = tsens_mC_to_hw(s, cl_low);
