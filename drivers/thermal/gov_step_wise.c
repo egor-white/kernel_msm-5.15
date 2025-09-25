@@ -40,6 +40,7 @@ static unsigned long get_target_state(struct thermal_instance *instance,
 	struct thermal_cooling_device *cdev = instance->cdev;
 	unsigned long cur_state;
 	unsigned long next_target;
+	unsigned long max_cooling_state;
 
 	/*
 	 * We keep this instance the way it is by default.
@@ -64,8 +65,6 @@ static unsigned long get_target_state(struct thermal_instance *instance,
 	}
 
 	// Limit maximum cooling state to make throttling less aggressive
-	unsigned long max_cooling_state;
-
 	max_cooling_state = instance->upper;
 	if (max_cooling_state > 2)
 		max_cooling_state = 2; // never throttle below state 2
