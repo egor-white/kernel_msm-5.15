@@ -130,6 +130,20 @@ jobs:
           if [ -n "${{ github.event.inputs.localVersion }}" ]; then
             echo "CONFIG_LOCALVERSION=\"${{ github.event.inputs.localVersion }}\"" >> "$CONFIG_FILE"
           fi
+
+          # Enable MGLRU
+          echo "CONFIG_LRU_GEN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_LRU_GEN_ENABLED=y" >> "$CONFIG_FILE"
+
+          # Configure UCLAMP
+          echo "CONFIG_UCLAMP_TASK=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUPS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CGROUP_SCHED=y" >> "$CONFIG_FILE"
+          echo "CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y" >> "$CONFIG_FILE"
+          
+          # Enable ZRAM
+          echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
           
           # Basic optimizations
           echo "CONFIG_KALLSYMS=y" >> "$CONFIG_FILE"
